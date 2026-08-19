@@ -5,6 +5,9 @@ on:
   schedule:
     - cron: '0 0 * * *' # Runs once a day
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
