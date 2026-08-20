@@ -5,9 +5,9 @@ public:
         int jump = 0;
         int l = 0, r = 0;
         int farthest = 0;
-        while(r < n-1) {
+        while(r<n-1) {
             for(int i = l; i<=r; i++) {
-                farthest = max(farthest, i + nums[i]);
+                farthest = max(i+nums[i], farthest);
             }
             l = r + 1;
             r = farthest;
