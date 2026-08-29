@@ -12,10 +12,23 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Run LeetCode Sync
-        uses: joshcai/leetcode-sync@v1.7
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          leetcode-csrf-token: ${{ secrets.LEETCODE_CSRF_TOKEN }}
-          leetcode-session: ${{ secrets.LEETCODE_SESSION }}
-          destination-folder: 'solutions'
+      - name: Check LeetCode authentication
+        env:
+          LEETCODE_CSRF_TOKEN: ${{ secrets.LEETCODE_CSRF_TOKEN }}
+          LEETCODE_SESSION: ${{ secrets.LEETCODE_SESSION }}
+        run: |
+          if [ -z "${LEETCODE_SESSION}" ] || [ -z "${LEETCODE_CSRF_TOKEN}" ]; then
+            echo "LeetCode secrets LEETCODE_SESSION or LEETCODE_CSRF_TOKEN are not set. Please add them in Settings → Secrets and variables → Actions."
+            exit 1
+          fi
+
+          # Check basic authentication by fetching a LeetCode endpoint that requires login.
+          http_code=$(curl -s -o /tmp/leetcode_resp.json -w "%{http_code}" \
+            -H "Cookie: LEETCODE_SESSION=${LEETCODE_SESSION}; csrftoken=${LEETCODE_CSRF_TOKEN}" \
+            "https://leetcode.com/api/problems/all/")
+
+          if [ "${http_code}" -ne 200 ]; then
+            echo "LeetCode authentication check failed (HTTP ${http_code})."
+            echo "Contents of response for debugging:" >&2
+            sed -n '1,200p' /tmp/leetcode_resp.json >&2 || true
+            echo "Please refresh
