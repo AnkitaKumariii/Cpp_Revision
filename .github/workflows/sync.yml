@@ -28,7 +28,9 @@ jobs:
             "https://leetcode.com/api/problems/all/")
 
           if [ "${http_code}" -ne 200 ]; then
-            echo "LeetCode authentication check failed (HTTP ${http_code})."
+            echo "LeetCode authentication check failed (HTTP ${http_code})." >&2
             echo "Contents of response for debugging:" >&2
             sed -n '1,200p' /tmp/leetcode_resp.json >&2 || true
-            echo "Please refresh
+            echo "Please refresh LEETCODE_SESSION and LEETCODE_CSRF_TOKEN secrets." >&2
+            exit 1
+          fi
